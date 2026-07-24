@@ -1,0 +1,216 @@
+"""
+Visualization Tool — Generates interactive Plotly charts for customer segments,
+distributions, comparisons, and correlations.
+Returns Plotly figure JSON that Streamlit can render directly.
+"""
+import json
+import pandas as pd
+import numpy as np
+import plotly.express as px
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+from langchain_core.tools import tool
+from data_loader import get_customer_features
+from tools.segmentation_tool import get_segment_results
+from config import CHARTS_DIR
+
+
+def _save_and_return(fig, name: str) -> str:
+    """Save chart as HTML and return the path."""
+    path = CHARTS_DIR / f"{name}.html"
+    fig.write_html(str(path), include_plotlyjs="cdn")
+    # Also return JSON for Streamlit
+    return json.dumps({
+        "chart_type": name,
+        "chart_path": str(path),
+        "chart_json": fig.to_json(),
+    })
+
+
+@tool
+def plot_segment_distribution() -> str:
+    """
+    Create a pie chart and bar chart showing the distribution of customers across segments.
+    Use after segmentation to visualize segment sizes.
+    Returns: Chart data as JSON (rendered automatically in the UI).
+    """
+    seg_data = get_segment_results()
+    if seg_data is None:
+        return "No segmentation has been performed yet. Please run segmentation first."
+
+    counts = seg_data["segment"].value_counts()
+
+    fig = make_subplots(rows=1, cols=2, specs=[[{"type": "pie"}, {"type": "bar"}]],
+                        subplot_titles=("Segment Distribution", "Customer Count by Segment"))
+
+    colors = px.colors.qualitative.Set2
+
+    # Pie chart
+    fig.add_trace(go.Pie(labels=counts.index, values=counts.values,
+                         marker=dict(colors=colors), textinfo="label+percent",
+                         hole=0.4), row=1, col=1)
+
+    # Bar chart
+    fig.add_trace(go.Bar(x=counts.index, y=counts.values,
+                         marker_color=colors[:len(counts)],
+                         text=counts.values, textposition="auto"), row=1, col=2)
+
+    fig.update_layout(
+        title_text="Customer Segment Distribution",
+        template="plotly_dark",
+        height=450,
+        showlegend=False,
+    )
+
+    return _save_and_return(fig, "segment_distribution")
+
+
+@tool
+def plot_feature_comparison(feature_name: str) -> str:
+    """
+    Create box plots comparing a feature's distribution across all segments.
+    Useful for understanding how a metric varies between segments.
+    
+    Args:
+        feature_name: The feature to compare (e.g., 'avg_balance', 'total_transactions',
+                       'avg_amount', 'recency_days', 'txn_per_month')
+    
+    Returns: Chart data as JSON.
+    """
+    seg_data = get_segment_results()
+    if seg_data is None:
+        return "No segmentation has been performed yet."
+
+    if feature_name not in seg_data.columns:
+        return f"Feature '{feature_name}' not found. Available: {list(seg_data.select_dtypes(include=[np.number]).columns)}"
+
+    fig = px.box(seg_data, x="segment", y=feature_name, color="segment",
+                 title=f"Distribution of {feature_name} by Segment",
+                 template="plotly_dark",
+                 color_discrete_sequence=px.colors.qualitative.Set2)
+
+    fig.update_layout(height=450, showlegend=False)
+
+    return _save_and_return(fig, f"feature_comparison_{feature_name}")
+
+
+@tool
+def plot_cluster_scatter(x_feature: str, y_feature: str) -> str:
+    """
+    Create a 2D scatter plot showing customers colored by their segment.
+    Great for visualizing how segments are distributed in feature space.
+    
+    Args:
+        x_feature: Feature for x-axis (e.g., 'avg_balance')
+        y_feature: Feature for y-axis (e.g., 'total_transactions')
+    
+    Returns: Chart data as JSON.
+    """
+    seg_data = get_segment_results()
+    if seg_data is None:
+        return "No segmentation has been performed yet."
+
+    for f in [x_feature, y_feature]:
+        if f not in seg_data.columns:
+            return f"Feature '{f}' not found."
+
+    # Sample for performance
+    plot_data = seg_data.sample(n=min(5000, len(seg_data)), random_state=42)
+
+    fig = px.scatter(plot_data, x=x_feature, y=y_feature, color="segment",
+                     title=f"Customer Segments: {x_feature} vs {y_feature}",
+                     template="plotly_dark",
+                     color_discrete_sequence=px.colors.qualitative.Set2,
+                     opacity=0.6)
+
+    fig.update_layout(height=500)
+
+    return _save_and_return(fig, f"scatter_{x_feature}_vs_{y_feature}")
+
+
+@tool
+def plot_segment_radar() -> str:
+    """
+    Create a radar/spider chart showing the profile of each segment across key metrics.
+    Each axis represents a normalized metric, showing relative strengths per segment.
+    Use this for a holistic view of segment characteristics.
+    Returns: Chart data as JSON.
+    """
+    seg_data = get_segment_results()
+    if seg_data is None:
+        return "No segmentation has been performed yet."
+
+    metrics = ["avg_balance", "total_transactions", "avg_amount", "recency_days", "txn_per_month"]
+    available = [m for m in metrics if m in seg_data.columns]
+
+    # Normalize metrics to 0-1 for radar chart
+    segments = seg_data["segment"].unique()
+    fig = go.Figure()
+
+    colors = px.colors.qualitative.Set2
+
+    for i, seg in enumerate(segments):
+        seg_subset = seg_data[seg_data["segment"] == seg]
+        values = []
+        for m in available:
+            overall_max = seg_data[m].max()
+            overall_min = seg_data[m].min()
+            if overall_max != overall_min:
+                normalized = (seg_subset[m].mean() - overall_min) / (overall_max - overall_min)
+            else:
+                normalized = 0.5
+            values.append(round(normalized, 3))
+
+        # Close the radar
+        values.append(values[0])
+        labels = available + [available[0]]
+
+        fig.add_trace(go.Scatterpolar(
+            r=values, theta=labels, fill="toself",
+            name=seg, line_color=colors[i % len(colors)],
+            opacity=0.7
+        ))
+
+    fig.update_layout(
+        polar=dict(radialaxis=dict(visible=True, range=[0, 1])),
+        title="Segment Profiles (Radar Chart)",
+        template="plotly_dark",
+        height=500,
+    )
+
+    return _save_and_return(fig, "segment_radar")
+
+
+@tool
+def plot_correlation_heatmap() -> str:
+    """
+    Create a correlation heatmap of customer-level numerical features.
+    Shows which features are positively or negatively correlated.
+    Returns: Chart data as JSON.
+    """
+    cust = get_customer_features()
+    num_cols = ["total_transactions", "total_amount", "avg_amount", "avg_balance",
+                "max_balance", "recency_days", "std_amount", "txn_per_month", "age"]
+    available = [c for c in num_cols if c in cust.columns]
+
+    corr = cust[available].corr().round(3)
+
+    fig = go.Figure(data=go.Heatmap(
+        z=corr.values,
+        x=available,
+        y=available,
+        colorscale="RdBu_r",
+        zmin=-1, zmax=1,
+        text=corr.values.round(2),
+        texttemplate="%{text}",
+        textfont={"size": 10},
+    ))
+
+    fig.update_layout(
+        title="Feature Correlation Heatmap",
+        template="plotly_dark",
+        height=500,
+        width=600,
+    )
+
+    return _save_and_return(fig, "correlation_heatmap")
