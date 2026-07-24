@@ -118,20 +118,9 @@ def segment_customers_rule_based(rules_description: str) -> str:
         avg_recency=("recency_days", "mean"),
     ).round(2)
 
-    result = f"""## Rule-Based Segmentation Complete
-
-### Rules Applied
-{chr(10).join(f"- **{seg}**: {rule}" for seg, rule in rules_applied.items())}
-
-### Segment Summary
-| Segment | Customers | % of Total | Avg Balance (₹) | Avg Transactions | Avg Txn Amount (₹) | Avg Recency (days) |
-|---|---|---|---|---|---|---|"""
-
+    result = f"Rule-Based Segmentation Complete. Segments created:\n"
     for seg, row in seg_summary.iterrows():
-        pct = row["count"] / len(cust) * 100
-        result += f"\n| {seg} | {row['count']:,.0f} | {pct:.1f}% | {row['avg_balance']:,.2f} | {row['avg_transactions']:,.1f} | {row['avg_txn_amount']:,.2f} | {row['avg_recency']:,.1f} |"
-
-    result += f"\n\n**Segments exported to:** segments.csv ({len(cust):,} customers)"
+        result += f"- {seg}: {row['count']} customers\n"
     return result
 
 

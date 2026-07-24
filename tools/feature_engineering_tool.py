@@ -24,40 +24,7 @@ def engineer_customer_features() -> str:
     """
     cust = get_customer_features(force_reload=True)
 
-    result = f"""## Customer Feature Engineering Complete
-
-**Customers processed:** {len(cust):,}
-
-### Features Created
-| Feature | Description | Mean | Median | Std |
-|---|---|---|---|---|"""
-
-    feature_descriptions = {
-        "total_transactions": "Total number of transactions",
-        "total_amount": "Total transaction amount (₹)",
-        "avg_amount": "Average transaction amount (₹)",
-        "max_amount": "Maximum single transaction (₹)",
-        "std_amount": "Std deviation of transaction amounts",
-        "avg_balance": "Average account balance (₹)",
-        "max_balance": "Maximum account balance (₹)",
-        "recency_days": "Days since last transaction",
-        "tenure_days": "Days between first and last transaction",
-        "txn_per_month": "Transactions per month",
-        "balance_to_avg_txn": "Balance to avg transaction ratio",
-        "age": "Customer age (years)",
-    }
-
-    for feat, desc in feature_descriptions.items():
-        if feat in cust.columns and pd.api.types.is_numeric_dtype(cust[feat]):
-            mean = cust[feat].mean()
-            median = cust[feat].median()
-            std = cust[feat].std()
-            result += f"\n| {feat} | {desc} | {mean:,.2f} | {median:,.2f} | {std:,.2f} |"
-
-    result += f"\n\n### Categorical Features\n"
-    result += f"- **Gender:** {cust['gender'].value_counts().to_dict()}\n"
-    result += f"- **Top Locations:** {cust['location'].value_counts().head(5).to_dict()}\n"
-
+    result = f"Customer Feature Engineering Complete. Processed {len(cust)} customers."
     return result
 
 
