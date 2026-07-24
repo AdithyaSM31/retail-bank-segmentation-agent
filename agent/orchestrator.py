@@ -53,21 +53,11 @@ from tools.data_export_tool import (
 
 # All available tools
 ALL_TOOLS = [
-    # Feature Engineering
     engineer_customer_features,
-    # Segmentation
     segment_customers_rule_based,
     segment_customers_ml,
-    # Explainability
-    explain_segment,
-    get_feature_importance_for_segments,
-    # Recommendations
-    recommend_products_for_segment,
-    # Visualization
     plot_segment_distribution,
     plot_feature_comparison,
-    # Data Export
-    export_segments_to_csv,
 ]
 
 
