@@ -5,7 +5,7 @@ python-dotenv==1.0.1
 
 # LLM & Agent
 langchain==0.3.25
-langchain-google-genai==2.1.4
+langchain-groq
 langgraph==0.4.1
 
 # Data & ML

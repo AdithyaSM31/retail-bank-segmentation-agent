@@ -22,8 +22,8 @@ TRANSACTIONS_CSV = DATA_DIR / "bank_transactions.csv"
 SYNTHETIC_PRODUCTS_CSV = DATA_DIR / "synthetic_products.csv"
 
 # --- LLM ---
-GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", "")
-LLM_MODEL = "gemini-2.5-flash"
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
+LLM_MODEL = "llama-3.3-70b-versatile"
 LLM_TEMPERATURE = 0.1  # Low temperature for consistent analytical outputs
 
 # --- Clustering Defaults ---

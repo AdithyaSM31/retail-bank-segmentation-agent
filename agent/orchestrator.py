@@ -2,10 +2,10 @@
 Agent Orchestrator — LangGraph ReAct agent that orchestrates all tools
 to answer user queries about customer segmentation and banking analytics.
 """
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_groq import ChatGroq
 from langgraph.prebuilt import create_react_agent
 from agent.prompts import SYSTEM_PROMPT
-from config import GOOGLE_API_KEY, LLM_MODEL, LLM_TEMPERATURE
+from config import GROQ_API_KEY, LLM_MODEL, LLM_TEMPERATURE
 
 # Import all tools
 from tools.eda_tool import (
@@ -92,9 +92,9 @@ ALL_TOOLS = [
 
 def create_agent():
     """Create and return the LangGraph ReAct agent with all tools."""
-    llm = ChatGoogleGenerativeAI(
+    llm = ChatGroq(
         model=LLM_MODEL,
-        google_api_key=GOOGLE_API_KEY,
+        api_key=GROQ_API_KEY,
         temperature=LLM_TEMPERATURE,
     )
 
