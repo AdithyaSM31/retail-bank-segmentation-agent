@@ -1,0 +1,23 @@
+fastapi==0.115.0
+uvicorn==0.30.0
+streamlit==1.38.0
+python-dotenv==1.0.1
+
+# LLM & Agent
+langchain==0.3.25
+langchain-google-genai==2.1.4
+langgraph==0.4.1
+
+# Data & ML
+pandas==2.2.3
+numpy==1.26.4
+scikit-learn==1.5.2
+scipy==1.14.1
+
+# Visualization
+plotly==5.24.1
+matplotlib==3.9.2
+seaborn==0.13.2
+
+# Utilities
+requests==2.32.3
