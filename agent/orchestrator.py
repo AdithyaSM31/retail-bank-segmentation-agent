@@ -2,10 +2,10 @@
 Agent Orchestrator — LangGraph ReAct agent that orchestrates all tools
 to answer user queries about customer segmentation and banking analytics.
 """
-from langchain_groq import ChatGroq
+from langchain_openai import ChatOpenAI
 from langgraph.prebuilt import create_react_agent
 from agent.prompts import SYSTEM_PROMPT
-from config import GROQ_API_KEY, LLM_MODEL, LLM_TEMPERATURE
+from config import LLM_TEMPERATURE, OPENAI_API_KEY, LLM_MODEL
 
 # Import all tools
 from tools.eda_tool import (
@@ -63,10 +63,11 @@ ALL_TOOLS = [
 
 def create_agent():
     """Create and return the LangGraph ReAct agent with all tools."""
-    llm = ChatGroq(
+    llm = ChatOpenAI(
         model=LLM_MODEL,
-        api_key=GROQ_API_KEY,
+        api_key=OPENAI_API_KEY,
         temperature=LLM_TEMPERATURE,
+        max_tokens=2000,
     )
 
     agent = create_react_agent(

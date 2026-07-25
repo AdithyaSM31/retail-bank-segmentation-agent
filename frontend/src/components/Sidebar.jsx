@@ -1,71 +1,67 @@
-import React from 'react';
-import { Database, Users, LayoutDashboard, PieChart, Info, Download, Trash2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { LayoutDashboard, Users, BarChart, PieChart, FileText, Bell, Database, Settings, Trash2, Building2 } from 'lucide-react';
 
 const Sidebar = ({ onQuickAction, onClearChat }) => {
+  const [activeTab, setActiveTab] = useState('Analytics');
+
   return (
-    <div className="sidebar glass-panel">
+    <div className="sidebar">
       <div className="brand-section">
         <div className="brand-icon">
-          <Database size={40} strokeWidth={1.5} />
+          <Database size={28} />
         </div>
         <h1 className="brand-title">Analytics Agent</h1>
-        <p className="brand-subtitle">Customer Segmentation</p>
       </div>
 
       <div className="nav-section">
-        <h3 className="nav-title">Quick Actions</h3>
-        <button 
-          className="action-btn"
-          onClick={() => onQuickAction("Run a comprehensive exploratory data analysis on the dataset")}
-        >
+        <div className={`nav-item ${activeTab === 'Overview' ? 'active' : ''}`} onClick={() => setActiveTab('Overview')}>
           <LayoutDashboard size={18} />
-          Run EDA
-        </button>
-        <button 
-          className="action-btn"
-          onClick={() => onQuickAction("Segment customers into Priority, Regular, and Dormant based on balance and transaction frequency")}
-        >
+          Overview
+        </div>
+        <div className={`nav-item ${activeTab === 'Customers' ? 'active' : ''}`} onClick={() => setActiveTab('Customers')}>
           <Users size={18} />
-          Segment Customers
-        </button>
-        <button 
-          className="action-btn"
-          onClick={() => onQuickAction("Create visualizations showing segment distribution")}
-        >
+          Customers
+        </div>
+        <div className={`nav-item ${activeTab === 'Analytics' ? 'active' : ''}`} onClick={() => setActiveTab('Analytics')}>
+          <BarChart size={18} />
+          Analytics
+        </div>
+        <div className={`nav-item ${activeTab === 'Segments' ? 'active' : ''}`} onClick={() => setActiveTab('Segments')}>
           <PieChart size={18} />
-          Visualize Data
-        </button>
-        <button 
-          className="action-btn"
-          onClick={() => onQuickAction("Explain the characteristics of each customer segment")}
-        >
-          <Info size={18} />
-          Explain Segments
-        </button>
-      </div>
-
-      <div className="nav-section">
-        <h3 className="nav-title">Dataset</h3>
-        <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1.5rem', padding: '0 0.5rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-            <span>Rows:</span>
-            <span style={{ color: 'white', fontWeight: 500 }}>1,048,567</span>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <span>Customers:</span>
-            <span style={{ color: 'white', fontWeight: 500 }}>885,112</span>
-          </div>
+          Segments
+        </div>
+        <div className={`nav-item ${activeTab === 'Reports' ? 'active' : ''}`} onClick={() => setActiveTab('Reports')}>
+          <FileText size={18} />
+          Reports
+        </div>
+        <div className={`nav-item ${activeTab === 'Alerts' ? 'active' : ''}`} onClick={() => setActiveTab('Alerts')}>
+          <Bell size={18} />
+          Alerts
+        </div>
+        <div className={`nav-item ${activeTab === 'Data Sources' ? 'active' : ''}`} onClick={() => setActiveTab('Data Sources')}>
+          <Database size={18} />
+          Data Sources
+        </div>
+        <div className={`nav-item ${activeTab === 'Settings' ? 'active' : ''}`} onClick={() => setActiveTab('Settings')}>
+          <Settings size={18} />
+          Settings
         </div>
       </div>
 
-      <div style={{ marginTop: 'auto' }}>
+      <div className="sidebar-footer">
+        <div className="company-icon">
+          <Building2 size={18} />
+        </div>
+        <div className="company-info" style={{ flex: 1 }}>
+          <h4>Global Bank</h4>
+          <p>Enterprise Plan</p>
+        </div>
         <button 
-          className="action-btn" 
           onClick={onClearChat}
-          style={{ color: '#ef4444', justifyContent: 'center' }}
+          style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '0.25rem' }}
+          title="Clear Chat"
         >
           <Trash2 size={16} />
-          Clear Chat
         </button>
       </div>
     </div>

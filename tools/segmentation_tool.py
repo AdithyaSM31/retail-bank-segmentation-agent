@@ -4,7 +4,7 @@ Supports KMeans clustering, rule-based segmentation, and optimal cluster analysi
 """
 import pandas as pd
 import numpy as np
-from sklearn.cluster import KMeans
+from sklearn.cluster import MiniBatchKMeans
 from sklearn.metrics import silhouette_score
 from langchain_core.tools import tool
 from data_loader import get_customer_features
@@ -148,9 +148,9 @@ def segment_customers_ml(n_clusters: int = 0) -> str:
         inertias = {}
 
         for k in range(2, min(MAX_CLUSTERS_SEARCH + 1, 11)):
-            km = KMeans(n_clusters=k, random_state=RANDOM_STATE, n_init=10, max_iter=300)
+            km = MiniBatchKMeans(n_clusters=k, random_state=RANDOM_STATE, n_init=3, max_iter=100, batch_size=10000)
             labels = km.fit_predict(scaled)
-            score = silhouette_score(scaled, labels, sample_size=min(10000, len(scaled)))
+            score = silhouette_score(scaled, labels, sample_size=min(2000, len(scaled)))
             scores[k] = round(score, 4)
             inertias[k] = round(km.inertia_, 2)
             if score > best_score:
@@ -165,9 +165,9 @@ def segment_customers_ml(n_clusters: int = 0) -> str:
         auto_detected = False
 
     # Run final KMeans
-    km = KMeans(n_clusters=n_clusters, random_state=RANDOM_STATE, n_init=10, max_iter=300)
+    km = MiniBatchKMeans(n_clusters=n_clusters, random_state=RANDOM_STATE, n_init=3, max_iter=100, batch_size=10000)
     labels = km.fit_predict(scaled)
-    sil_score = silhouette_score(scaled, labels, sample_size=min(10000, len(scaled)))
+    sil_score = silhouette_score(scaled, labels, sample_size=min(2000, len(scaled)))
 
     # Assign labels to customers
     cust["cluster"] = labels
@@ -259,9 +259,9 @@ def get_optimal_clusters() -> str:
     inertias = []
 
     for k in range(2, MAX_CLUSTERS_SEARCH + 1):
-        km = KMeans(n_clusters=k, random_state=RANDOM_STATE, n_init=10, max_iter=300)
+        km = MiniBatchKMeans(n_clusters=k, random_state=RANDOM_STATE, n_init=3, max_iter=100, batch_size=10000)
         labels = km.fit_predict(scaled)
-        sil = silhouette_score(scaled, labels, sample_size=min(10000, len(scaled)))
+        sil = silhouette_score(scaled, labels, sample_size=min(2000, len(scaled)))
         results.append({"k": k, "silhouette": round(sil, 4), "inertia": round(km.inertia_, 2)})
         inertias.append(km.inertia_)
 

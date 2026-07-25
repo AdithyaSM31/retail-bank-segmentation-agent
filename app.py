@@ -73,7 +73,21 @@ async def chat(request: ChatRequest):
             session_id=request.session_id,
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        import traceback
+        traceback.print_exc()
+        
+        # Don't crash the server, return a graceful error message to the UI
+        error_msg = str(e)
+        if "Connection error" in error_msg:
+            error_msg = "I'm having trouble connecting to the AI provider. Please try again."
+        elif "429" in error_msg or "Rate limit" in error_msg:
+            error_msg = "We've hit the API provider's rate limit or run out of credits. Please check your API balance or wait a minute before trying again."
+            
+        return ChatResponse(
+            response=f"❌ **Error:** {error_msg}",
+            charts=[],
+            session_id=request.session_id,
+        )
 
 
 @app.get("/download/{filename}")
@@ -88,6 +102,37 @@ async def download_file(filename: str):
 @app.get("/health")
 async def health():
     return {"status": "healthy", "agent_loaded": agent is not None}
+
+@app.get("/api/kpi")
+def get_kpi_data():
+    """Calculate and return actual dashboard KPI statistics from the dataset."""
+    from data_loader import get_customer_features
+    try:
+        df = get_customer_features()
+        
+        # Define segments using boolean masks to avoid copying DataFrames
+        dormant_mask = df["recency_days"] > 90
+        active_mask = ~dormant_mask
+        priority_mask = active_mask & (df["avg_balance"] > 100000)
+        regular_mask = active_mask & (df["avg_balance"] <= 100000)
+        
+        return {
+            "priority": {
+                "customers": int(priority_mask.sum()),
+                "avg_balance": round(df.loc[priority_mask, "avg_balance"].mean()) if priority_mask.any() else 0,
+            },
+            "regular": {
+                "customers": int(regular_mask.sum()),
+                "avg_balance": round(df.loc[regular_mask, "avg_balance"].mean()) if regular_mask.any() else 0,
+            },
+            "dormant": {
+                "customers": int(dormant_mask.sum()),
+                "avg_balance": round(df.loc[dormant_mask, "avg_balance"].mean()) if dormant_mask.any() else 0,
+            }
+        }
+    except Exception as e:
+        print("Error calculating KPIs:", e)
+        raise HTTPException(status_code=500, detail="Internal server error calculating KPIs")
 
 
 if __name__ == "__main__":

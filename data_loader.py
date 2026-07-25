@@ -24,10 +24,10 @@ def load_raw_data(force_reload: bool = False) -> pd.DataFrame:
     df.rename(columns={"TransactionAmount (INR)": "TransactionAmount"}, inplace=True)
 
     # --- Parse dates ---
-    df["TransactionDate"] = pd.to_datetime(df["TransactionDate"], format="mixed", dayfirst=True, errors="coerce")
+    df["TransactionDate"] = pd.to_datetime(df["TransactionDate"], format="%d/%m/%y", errors="coerce")
 
     # --- Parse DOB and compute age ---
-    df["CustomerDOB"] = pd.to_datetime(df["CustomerDOB"], format="mixed", dayfirst=True, errors="coerce")
+    df["CustomerDOB"] = pd.to_datetime(df["CustomerDOB"], format="%d/%m/%y", errors="coerce")
     # Filter out obviously invalid DOBs (year < 1920 or > 2010)
     invalid_dob_mask = (df["CustomerDOB"].dt.year < 1920) | (df["CustomerDOB"].dt.year > 2010)
     df.loc[invalid_dob_mask, "CustomerDOB"] = pd.NaT

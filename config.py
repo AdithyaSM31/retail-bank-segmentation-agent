@@ -23,7 +23,8 @@ SYNTHETIC_PRODUCTS_CSV = DATA_DIR / "synthetic_products.csv"
 
 # --- LLM ---
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
-LLM_MODEL = "llama-3.1-8b-instant"
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
+LLM_MODEL = "gpt-4o-mini"
 LLM_TEMPERATURE = 0.1  # Low temperature for consistent analytical outputs
 
 # --- Clustering Defaults ---
