@@ -63,8 +63,9 @@ function App() {
     setMessages([]);
   };
 
-  // Collect all charts from message history
-  const allCharts = messages.flatMap(msg => msg.charts || []);
+  // Only display charts from the most recent assistant message
+  const lastAssistantMsg = [...messages].reverse().find(msg => msg.role === 'assistant');
+  const activeCharts = lastAssistantMsg?.charts || [];
 
   return (
     <div className="app-layout">
@@ -79,7 +80,7 @@ function App() {
           onSendMessage={handleSendMessage} 
           onClearChat={handleClearChat}
         />
-        <Dashboard charts={allCharts} kpiData={kpiData} />
+        <Dashboard charts={activeCharts} kpiData={kpiData} />
       </div>
     </div>
   );
