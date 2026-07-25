@@ -14,8 +14,8 @@ The system follows an **agentic AI architecture** using a **LangGraph ReAct (Rea
 
 ```
 ┌──────────────────┐     ┌─────────────────────────────┐     ┌───────────────┐
-│  Streamlit UI    │────▶│  LangGraph ReAct Agent       │────▶│  Gemini 2.5   │
-│  (Chat + Charts) │◀────│  (Orchestrator)              │◀────│  Flash LLM    │
+│  React Frontend  │────▶│  LangGraph ReAct Agent       │────▶│  OpenAI GPT-4o│
+│  (Glassmorphism) │◀────│  (Orchestrator via FastAPI)  │◀────│  -mini LLM    │
 └──────────────────┘     │                               │     └───────────────┘
                           │  ┌──────────────────────────┐│
                           │  │     25 Specialized Tools  ││
@@ -47,8 +47,8 @@ The system follows an **agentic AI architecture** using a **LangGraph ReAct (Rea
 
 ### How the Agent Works
 
-1. **User sends a natural language query** via the Streamlit chat interface
-2. **LLM (Gemini 2.5 Flash) interprets the query** and decides which tools to call and in what order
+1. **User sends a natural language query** via the React chat interface
+2. **LLM (OpenAI GPT-4o-mini)** interprets the query and decides which tools to call and in what order
 3. **Agent executes a multi-step pipeline** automatically — e.g., for "Segment customers into priority, regular and dormant":
    - Step 1: Call `engineer_customer_features()` to aggregate transaction data
    - Step 2: Call `segment_customers_rule_based()` with appropriate rules
@@ -69,14 +69,14 @@ The system follows an **agentic AI architecture** using a **LangGraph ReAct (Rea
 
 | Layer | Technology |
 |---|---|
-| **Frontend** | Streamlit (chat UI + Plotly chart rendering) |
+| **Frontend** | React, Vite, CSS Glassmorphism, Plotly |
 | **Agent Framework** | LangGraph + LangChain (ReAct agent with tool calling) |
-| **LLM** | Google Gemini 2.5 Flash (free API via Google AI Studio) |
+| **LLM** | OpenAI GPT-4o-mini |
 | **Data Processing** | Pandas, NumPy |
-| **ML / Clustering** | scikit-learn (KMeans, StandardScaler, silhouette analysis) |
-| **Visualization** | Plotly (interactive charts with dark theme) |
-| **Backend API** | FastAPI (optional REST endpoint) |
-| **Language** | Python 3.10+ |
+| **ML / Clustering** | scikit-learn (MiniBatchKMeans for memory efficiency) |
+| **Visualization** | Plotly (interactive charts with custom styling) |
+| **Backend API** | FastAPI |
+| **Language** | Python 3.10+, JavaScript / JSX |
 
 ## Dataset Information
 
@@ -109,8 +109,8 @@ The system follows an **agentic AI architecture** using a **LangGraph ReAct (Rea
 ## Setup & Usage
 
 ### Prerequisites
-- Python 3.10+
-- Google AI Studio API key ([Get one free](https://aistudio.google.com/))
+- Python 3.10+ and Node.js
+- OpenAI API key (ensure you have billing set up for Tier 1+ usage)
 
 ### Installation
 
@@ -129,7 +129,12 @@ pip install -r requirements.txt
 
 # Set up environment variables
 copy .env.example .env
-# Edit .env and add your GOOGLE_API_KEY
+# Edit .env and add your OPENAI_API_KEY
+```
+# Frontend Setup
+```bash
+cd frontend
+npm install
 ```
 
 ### Dataset Setup
@@ -190,8 +195,13 @@ python generate_synthetic_data.py
 │   ├── recommendation_tool.py          # Product recommendations
 │   ├── visualization_tool.py           # Plotly chart generation
 │   └── data_export_tool.py             # CSV export & reports
-├── ui/
-│   └── streamlit_app.py               # Streamlit chat frontend
+├── ui/                                 # Old UI files
+│   └── streamlit_app.py               # Legacy Streamlit UI
+├── frontend/                           # New React Application
+│   ├── src/
+│   │   ├── components/                 # React UI Components
+│   │   ├── App.jsx                     # Main React View
+│   │   └── index.css                   # Glassmorphism styling
 ├── data/
 │   ├── bank_transactions.csv           # Primary dataset (Kaggle)
 │   └── synthetic_products.csv          # Generated product holdings
@@ -202,8 +212,8 @@ python generate_synthetic_data.py
 ## Disclosures
 
 ### AI Tools Used
-- **Google Gemini 2.5 Flash** — LLM for agent reasoning and tool selection (via Google AI Studio free API)
+- **OpenAI GPT-4o-mini** — LLM for agent reasoning and tool selection
 - **Agentic coding assistant** — Used during development
 
 ### External Libraries
-All dependencies are listed in `requirements.txt`. Key libraries: LangChain, LangGraph, scikit-learn, Plotly, Streamlit, FastAPI, Pandas.
+All dependencies are listed in `requirements.txt` and `package.json`. Key libraries: LangChain, LangGraph, scikit-learn, Plotly, FastAPI, Pandas, React, Vite.
