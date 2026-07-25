@@ -140,15 +140,22 @@ copy .env.example .env
 python generate_synthetic_data.py
 ```
 
-### Running the Application
+### Running the Application (New React + Glassmorphism UI)
 
-```bash
-# Start the Streamlit UI (recommended)
-streamlit run ui/streamlit_app.py
+1. **Start the FastAPI Backend**
+   Open a new terminal, activate your virtual environment, and run:
+   ```bash
+   uvicorn app:app --reload
+   ```
+   (The API will run on `http://localhost:8000`)
 
-# Or start the FastAPI backend (optional)
-python app.py
-```
+2. **Start the React Frontend**
+   Open a second terminal, navigate to the `frontend` directory, and run:
+   ```bash
+   cd frontend
+   npm run dev
+   ```
+   (The UI will run on `http://localhost:5173`)
 
 ### Example Queries
 
