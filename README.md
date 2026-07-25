@@ -14,35 +14,35 @@ The system follows an **agentic AI architecture** using a **LangGraph ReAct (Rea
 
 ```
 ┌──────────────────┐     ┌─────────────────────────────┐     ┌───────────────┐
-│  React Frontend  │────▶│  LangGraph ReAct Agent       │────▶│  OpenAI GPT-4o│
-│  (Glassmorphism) │◀────│  (Orchestrator via FastAPI)  │◀────│  -mini LLM    │
-└──────────────────┘     │                               │     └───────────────┘
-                          │  ┌──────────────────────────┐│
-                          │  │     25 Specialized Tools  ││
-                          │  │  ┌─────┐ ┌──────────┐    ││
-                          │  │  │ EDA │ │ Feature   │    ││
-                          │  │  │Tool │ │Engineering│    ││
-                          │  │  └─────┘ └──────────┘    ││
-                          │  │  ┌─────────┐ ┌────────┐  ││
-                          │  │  │Segmentat│ │Explain │  ││
-                          │  │  │ion Tool │ │ability │  ││
-                          │  │  └─────────┘ └────────┘  ││
-                          │  │  ┌──────────┐ ┌───────┐  ││
-                          │  │  │Recommend │ │Visual- │  ││
-                          │  │  │ation     │ │ization│  ││
-                          │  │  └──────────┘ └───────┘  ││
-                          │  │  ┌───────┐               ││
-                          │  │  │Export  │               ││
-                          │  │  │Tool   │               ││
-                          │  │  └───────┘               ││
-                          │  └──────────────────────────┘│
-                          └──────────────────────────────┘
-                                        │
-                          ┌─────────────────────────────┐
-                          │  Data Layer (Pandas)         │
-                          │  1M+ Transactions → ~800K    │
-                          │  Customer-Level Features     │
-                          └─────────────────────────────┘
+│  React Frontend  │────▶│  LangGraph ReAct Agent      │────▶│ OpenAI GPT-4o │
+│  (Glassmorphism) │◀────│  (Orchestrator via FastAPI) │◀────│ -mini LLM     │
+└──────────────────┘     │                             │     └───────────────┘
+                         │  ┌───────────────────────┐  │
+                         │  │ 25 Specialized Tools  │  │
+                         │  │  ┌─────┐ ┌──────────┐ │  │
+                         │  │  │ EDA │ │ Feature  │ │  │
+                         │  │  │Tool │ │Eng.      │ │  │
+                         │  │  └─────┘ └──────────┘ │  │
+                         │  │  ┌─────────┐ ┌───────┐│  │
+                         │  │  │Segmentat│ │Explain││  │
+                         │  │  │ion Tool │ │ability││  │
+                         │  │  └─────────┘ └───────┘│  │
+                         │  │  ┌─────────┐ ┌───────┐│  │
+                         │  │  │Recommend│ │Visual-││  │
+                         │  │  │ation    │ │ization││  │
+                         │  │  └─────────┘ └───────┘│  │
+                         │  │  ┌───────┐            │  │
+                         │  │  │Export │            │  │
+                         │  │  │Tool   │            │  │
+                         │  │  └───────┘            │  │
+                         │  └───────────────────────┘  │
+                         └─────────────────────────────┘
+                                       │
+                         ┌─────────────────────────────┐
+                         │  Data Layer (Pandas)        │
+                         │  1M+ Transactions → ~800K   │
+                         │  Customer-Level Features    │
+                         └─────────────────────────────┘
 ```
 
 ### How the Agent Works
