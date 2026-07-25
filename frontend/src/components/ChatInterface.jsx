@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { Send, Sparkles, MoreVertical, History, Trash2 } from 'lucide-react';
+import remarkGfm from 'remark-gfm';
+import { Send, Sparkles, Trash2 } from 'lucide-react';
 
 const ChatInterface = ({ messages, isLoading, onSendMessage, onClearChat }) => {
   const [input, setInput] = useState('');
@@ -16,8 +17,10 @@ const ChatInterface = ({ messages, isLoading, onSendMessage, onClearChat }) => {
   };
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messages, isLoading]);
+    if (isLoading) {
+      scrollToBottom();
+    }
+  }, [isLoading]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -40,8 +43,6 @@ const ChatInterface = ({ messages, isLoading, onSendMessage, onClearChat }) => {
         </div>
         <div style={{ display: 'flex', gap: '1rem', color: 'var(--text-muted)' }}>
           <Trash2 size={18} style={{ cursor: 'pointer' }} onClick={onClearChat} title="Clear Chat" />
-          <History size={18} style={{ cursor: 'pointer' }} />
-          <MoreVertical size={18} style={{ cursor: 'pointer' }} />
         </div>
       </div>
 
@@ -63,7 +64,7 @@ const ChatInterface = ({ messages, isLoading, onSendMessage, onClearChat }) => {
               <Sparkles size={16} />
             </div>
             <div className="message-content">
-              <ReactMarkdown>{msg.content}</ReactMarkdown>
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
             </div>
           </div>
         ))}

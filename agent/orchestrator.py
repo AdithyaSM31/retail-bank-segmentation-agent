@@ -43,6 +43,7 @@ from tools.visualization_tool import (
     plot_cluster_scatter,
     plot_segment_radar,
     plot_correlation_heatmap,
+    plot_monthly_trends,
 )
 from tools.data_export_tool import (
     export_segments_to_csv,
@@ -53,11 +54,34 @@ from tools.data_export_tool import (
 
 # All available tools
 ALL_TOOLS = [
+    run_full_eda,
+    get_column_distribution,
+    get_correlation_analysis,
+    filter_and_aggregate,
+    get_missing_value_report,
     engineer_customer_features,
+    select_features_for_segmentation,
+    scale_features,
     segment_customers_rule_based,
     segment_customers_ml,
+    get_optimal_clusters,
+    get_segment_statistics,
+    explain_segment,
+    explain_customer_segment,
+    compare_segments,
+    get_feature_importance_for_segments,
+    recommend_products_for_segment,
+    identify_upgrade_candidates,
+    get_retention_strategies,
     plot_segment_distribution,
     plot_feature_comparison,
+    plot_cluster_scatter,
+    plot_segment_radar,
+    plot_correlation_heatmap,
+    plot_monthly_trends,
+    export_segments_to_csv,
+    export_segment_report,
+    query_segment_data,
 ]
 
 

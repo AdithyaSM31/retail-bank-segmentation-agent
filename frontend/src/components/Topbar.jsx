@@ -1,14 +1,11 @@
 import React from 'react';
-import { Sparkles } from 'lucide-react';
+import { KineticText } from './KineticText';
 
 const Topbar = () => {
   return (
     <div className="topbar">
       <div className="brand-section">
-        <div className="brand-icon">
-          <Sparkles size={24} />
-        </div>
-        <h1 className="brand-title">Retail Bank Segmentation Agent</h1>
+        <KineticText text="Retail Bank Segmentation Agent" className="brand-title" style={{ fontSize: '1.25rem' }} />
       </div>
 
       <div className="topbar-center">

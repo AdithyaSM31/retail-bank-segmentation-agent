@@ -10,7 +10,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from langchain_core.tools import tool
-from data_loader import get_customer_features
+from data_loader import get_customer_features, load_raw_data
 from tools.segmentation_tool import get_segment_results
 from config import CHARTS_DIR
 
@@ -38,28 +38,31 @@ def plot_segment_distribution() -> str:
     if seg_data is None:
         return "No segmentation has been performed yet. Please run segmentation first."
 
-    counts = seg_data["segment"].value_counts()
+    seg_counts = seg_data["segment"].value_counts().reset_index()
+    seg_counts.columns = ["segment", "count"]
 
-    fig = make_subplots(rows=1, cols=2, specs=[[{"type": "pie"}, {"type": "bar"}]],
+    # Create subplots - stacked vertically
+    fig = make_subplots(rows=2, cols=1,
+                        specs=[[{"type": "domain"}], [{"type": "xy"}]],
                         subplot_titles=("Segment Distribution", "Customer Count by Segment"))
 
-    colors = px.colors.qualitative.Set2
-
     # Pie chart
-    fig.add_trace(go.Pie(labels=counts.index, values=counts.values,
-                         marker=dict(colors=colors), textinfo="label+percent",
-                         hole=0.4), row=1, col=1)
+    fig.add_trace(go.Pie(labels=seg_counts['segment'], values=seg_counts['count'],
+                         marker_colors=px.colors.qualitative.Set2,
+                         textinfo="label+percent", hole=0.4), row=1, col=1)
 
     # Bar chart
-    fig.add_trace(go.Bar(x=counts.index, y=counts.values,
-                         marker_color=colors[:len(counts)],
-                         text=counts.values, textposition="auto"), row=1, col=2)
+    fig.add_trace(go.Bar(x=seg_counts['segment'], y=seg_counts['count'],
+                         marker_color=px.colors.qualitative.Set2,
+                         text=seg_counts['count'], textposition="auto"), row=2, col=1)
 
     fig.update_layout(
         title_text="Customer Segment Distribution",
-        template="plotly_dark",
-        height=450,
+        template="plotly_white",
+        height=800,
         showlegend=False,
+        font=dict(color="#1f2937"),
+        margin=dict(l=40, r=40, t=60, b=40)
     )
 
     return _save_and_return(fig, "segment_distribution")
@@ -86,10 +89,10 @@ def plot_feature_comparison(feature_name: str) -> str:
 
     fig = px.box(seg_data, x="segment", y=feature_name, color="segment",
                  title=f"Distribution of {feature_name} by Segment",
-                 template="plotly_dark",
+                 template="plotly_white",
                  color_discrete_sequence=px.colors.qualitative.Set2)
 
-    fig.update_layout(height=450, showlegend=False)
+    fig.update_layout(height=450, showlegend=False, font=dict(color="#1f2937"))
 
     return _save_and_return(fig, f"feature_comparison_{feature_name}")
 
@@ -119,11 +122,11 @@ def plot_cluster_scatter(x_feature: str, y_feature: str) -> str:
 
     fig = px.scatter(plot_data, x=x_feature, y=y_feature, color="segment",
                      title=f"Customer Segments: {x_feature} vs {y_feature}",
-                     template="plotly_dark",
+                     template="plotly_white",
                      color_discrete_sequence=px.colors.qualitative.Set2,
                      opacity=0.6)
 
-    fig.update_layout(height=500)
+    fig.update_layout(height=500, font=dict(color="#1f2937"))
 
     return _save_and_return(fig, f"scatter_{x_feature}_vs_{y_feature}")
 
@@ -174,8 +177,9 @@ def plot_segment_radar() -> str:
     fig.update_layout(
         polar=dict(radialaxis=dict(visible=True, range=[0, 1])),
         title="Segment Profiles (Radar Chart)",
-        template="plotly_dark",
+        template="plotly_white",
         height=500,
+        font=dict(color="#1f2937")
     )
 
     return _save_and_return(fig, "segment_radar")
@@ -208,9 +212,57 @@ def plot_correlation_heatmap() -> str:
 
     fig.update_layout(
         title="Feature Correlation Heatmap",
-        template="plotly_dark",
+        template="plotly_white",
         height=500,
         width=600,
+        font=dict(color="#1f2937")
     )
 
     return _save_and_return(fig, "correlation_heatmap")
+
+
+@tool
+def plot_monthly_trends() -> str:
+    """
+    Create a dual-axis chart showing the monthly transaction trends (volume and total amount).
+    Use this specifically when the user asks for Monthly Trends Analysis.
+    Returns: Chart data as JSON.
+    """
+    raw_df = load_raw_data()
+    if raw_df is None or raw_df.empty:
+        return "No transaction data available."
+
+    # Group by month
+    raw_df['YearMonth_sort'] = raw_df['TransactionDate'].dt.to_period('M')
+    monthly_stats = raw_df.groupby('YearMonth_sort').agg(
+        TotalTransactions=('TransactionID', 'count'),
+        TotalVolume=('TransactionAmount', 'sum')
+    ).reset_index().sort_values('YearMonth_sort')
+    
+    # Format beautifully for display (e.g. "Aug 2016")
+    monthly_stats['MonthLabel'] = monthly_stats['YearMonth_sort'].dt.strftime('%b %Y')
+
+    # Create figure with secondary y-axis
+    fig = make_subplots(specs=[[{"secondary_y": True}]])
+
+    fig.add_trace(go.Bar(x=monthly_stats['MonthLabel'], y=monthly_stats['TotalTransactions'],
+                         name="Total Transactions", marker_color="#3b82f6"),
+                  secondary_y=False)
+
+    fig.add_trace(go.Scatter(x=monthly_stats['MonthLabel'], y=monthly_stats['TotalVolume'],
+                             name="Total Volume (INR)", marker_color="#10b981", mode="lines+markers"),
+                  secondary_y=True)
+
+    fig.update_layout(
+        title_text="Monthly Transaction Trends",
+        template="plotly_white",
+        height=500,
+        font=dict(color="#1f2937"),
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+    )
+
+    fig.update_xaxes(type='category', title_text="Month")
+    fig.update_yaxes(title_text="Total Transactions", secondary_y=False)
+    fig.update_yaxes(title_text="Total Volume (INR)", secondary_y=True)
+
+    return _save_and_return(fig, "monthly_trends")

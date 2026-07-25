@@ -31,7 +31,17 @@ def explain_segment(segment_name: str) -> str:
     matched = [s for s in all_segments if segment_name.lower() in s.lower()]
 
     if not matched:
-        return f"Segment '{segment_name}' not found. Available segments: {list(all_segments)}"
+        # Auto-recover if they are asking for a default dashboard KPI segment
+        if segment_name.lower() in ["priority", "regular", "dormant"]:
+            from tools.segmentation_tool import segment_customers_rule_based
+            # Re-run default segmentation (without churn/risk keywords)
+            segment_customers_rule_based.invoke("dashboard KPIs")
+            seg_data = get_segment_results()
+            all_segments = seg_data[seg_col].unique()
+            matched = [s for s in all_segments if segment_name.lower() in s.lower()]
+            
+        if not matched:
+            return f"Segment '{segment_name}' not found. Available segments: {list(all_segments)}"
 
     target_seg = matched[0]
     seg_subset = seg_data[seg_data[seg_col] == target_seg]

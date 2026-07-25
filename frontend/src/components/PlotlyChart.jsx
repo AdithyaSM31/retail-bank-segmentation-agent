@@ -15,9 +15,8 @@ const PlotlyChart = ({ chartJson }) => {
       plot_bgcolor: 'rgba(0,0,0,0)',
       font: {
         family: 'Inter, sans-serif',
-        color: '#f8fafc'
-      },
-      margin: { l: 40, r: 20, t: 40, b: 40 }
+        color: '#1f2937'
+      }
     };
 
     return (

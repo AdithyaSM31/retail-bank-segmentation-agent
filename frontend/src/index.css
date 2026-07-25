@@ -6,8 +6,8 @@
   --sidebar-text: #9ca3af;
   --sidebar-text-active: #ffffff;
   
-  --chat-bg: #ffffff;
-  --chat-border: #e5e7eb;
+  --chat-bg: rgba(255, 255, 255, 0.85);
+  --chat-border: rgba(229, 231, 235, 0.5);
   
   --dashboard-bg: #f3f4f6;
   
@@ -59,7 +59,7 @@ body {
 
 .main-content {
   display: grid;
-  grid-template-columns: 450px 1fr;
+  grid-template-columns: 550px 1fr;
   flex: 1;
   min-height: 0;
   overflow: hidden;
@@ -280,7 +280,7 @@ body {
 
 .input-area {
   padding: 1rem 1.5rem;
-  background-color: var(--chat-bg);
+  background-color: transparent;
 }
 
 .suggestion-chips {
@@ -483,12 +483,10 @@ body {
   right: 0;
   height: 200%;
   transform: skewY(12deg);
-  mask-image: radial-gradient(500px circle at center, white, transparent);
-  -webkit-mask-image: radial-gradient(500px circle at center, white, transparent);
   z-index: 0;
   pointer-events: none;
-  background-color: white; /* "but with white bg" */
 }
+
 
 .animated-grid {
   position: absolute;
@@ -500,7 +498,20 @@ body {
 }
 
 .grid-square {
-  opacity: var(--max-opacity);
+  opacity: 0;
+  animation: grid-fade var(--duration) ease-in-out infinite;
+  animation-delay: var(--delay);
+  will-change: opacity;
+  transform: translateZ(0);
+}
+
+@keyframes grid-fade {
+  0%, 100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: var(--max-opacity);
+  }
 }
 
 /* Ensure topbar and main content sit above the absolute background */
@@ -510,7 +521,7 @@ body {
 }
 
 .chat-container, .sidebar {
-  background-color: rgba(255, 255, 255, 0.85); /* Restored high opacity without blur */
+  background-color: var(--chat-bg);
 }
 
 .app-layout {

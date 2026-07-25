@@ -28,4 +28,4 @@ outputs/*.md
 outputs/*.json
 
 # Data (large files)
-data/bank_transactions.csv
+data/*.csv

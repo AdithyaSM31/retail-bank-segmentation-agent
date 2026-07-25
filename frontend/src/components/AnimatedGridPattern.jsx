@@ -29,50 +29,53 @@ export function AnimatedGridPattern({
   }, [numSquares, duration, width, height, dimensions]);
 
   return (
-    <svg
-      className="animated-grid"
-      width="100%"
-      height="100%"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <defs>
-        <pattern
-          id="grid-pattern"
-          width={width}
-          height={height}
-          patternUnits="userSpaceOnUse"
-        >
-          <path
-            d={`M.5 ${height}V.5H${width}`}
-            fill="none"
-            stroke="rgba(0, 0, 0, 0.15)"
-            strokeWidth="1"
-          />
-        </pattern>
-      </defs>
-      
+    <>
       {/* Base Grid */}
-      <rect width="100%" height="100%" fill="url(#grid-pattern)" />
+      <svg
+        className="animated-grid"
+        width="100%"
+        height="100%"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <defs>
+          <pattern
+            id="grid-pattern"
+            width={width}
+            height={height}
+            patternUnits="userSpaceOnUse"
+          >
+            <path
+              d={`M.5 ${height}V.5H${width}`}
+              fill="none"
+              stroke="rgba(0, 0, 0, 0.2)"
+              strokeWidth="1"
+            />
+          </pattern>
+        </defs>
+        
+        <rect width="100%" height="100%" fill="url(#grid-pattern)" />
+      </svg>
       
-      {/* Animated Squares */}
-      <svg x="0" y="0">
+      {/* Animated HTML Squares (Hardware Accelerated) */}
+      <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
         {squares.map((sq) => (
-          <rect
+          <div
             key={sq.id}
-            width={width - 1}
-            height={height - 1}
-            x={sq.x * width + 1}
-            y={sq.y * height + 1}
-            fill="rgba(0,0,0,1)"
             className="grid-square"
             style={{
+              position: 'absolute',
+              width: `${width - 1}px`,
+              height: `${height - 1}px`,
+              left: `${sq.x * width + 1}px`,
+              top: `${sq.y * height + 1}px`,
+              backgroundColor: "rgba(0,0,0,1)",
               '--duration': `${sq.duration}s`,
               '--delay': `${sq.delay}s`,
               '--max-opacity': maxOpacity
             }}
           />
         ))}
-      </svg>
-    </svg>
+      </div>
+    </>
   );
 }

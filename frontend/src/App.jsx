@@ -70,7 +70,7 @@ function App() {
   return (
     <div className="app-layout">
       <div className="animated-grid-wrapper">
-        <AnimatedGridPattern numSquares={40} maxOpacity={0.2} duration={3} />
+        <AnimatedGridPattern numSquares={40} maxOpacity={0.25} duration={3} />
       </div>
       <Topbar />
       <div className="main-content">

@@ -65,39 +65,34 @@ def segment_customers_rule_based(rules_description: str) -> str:
         rule_parts = rules_description.split(";")
     elif "\n" in rules_description:
         rule_parts = rules_description.split("\n")
+    if any(kw in rules_lower for kw in ["risk", "churn"]):
+        # Churn Risk segmentation
+        high_risk_mask = cust["recency_days"] > 60
+        medium_risk_mask = (cust["recency_days"] > 30) & (cust["recency_days"] <= 60)
+        low_risk_mask = cust["recency_days"] <= 30
+        
+        segments[high_risk_mask] = "High Risk"
+        segments[medium_risk_mask] = "Medium Risk"
+        segments[low_risk_mask] = "Low Risk"
+        
+        rules_applied["High Risk"] = "recency_days > 60"
+        rules_applied["Medium Risk"] = "30 < recency_days <= 60"
+        rules_applied["Low Risk"] = "recency_days <= 30"
     else:
-        rule_parts = [rules_description]
-
-    # Build conditions for each segment
-    # Priority / High-value customers
-    if any(kw in rules_lower for kw in ["priority", "high-value", "premium", "high value"]):
-        # High balance AND high frequency
-        p75_bal = cust["avg_balance"].quantile(0.75)
-        p75_txn = cust["total_transactions"].quantile(0.75)
-        priority_mask = (cust["avg_balance"] >= p75_bal) & (cust["total_transactions"] >= p75_txn)
-        segments[priority_mask] = "Priority"
-        rules_applied["Priority"] = f"avg_balance >= {p75_bal:,.0f} (75th percentile) AND total_transactions >= {p75_txn:.0f} (75th percentile)"
-
-    # Dormant / Inactive customers
-    if any(kw in rules_lower for kw in ["dormant", "inactive", "churned", "at-risk"]):
-        # Low frequency OR high recency
-        p25_txn = cust["total_transactions"].quantile(0.25)
-        p75_rec = cust["recency_days"].quantile(0.75)
-        dormant_mask = (cust["total_transactions"] <= p25_txn) | (cust["recency_days"] >= p75_rec)
-        # Don't override priority
-        dormant_mask = dormant_mask & (segments != "Priority")
+        # Default Business Logic (Matches Dashboard KPIs)
+        dormant_mask = cust["recency_days"] > 90
+        active_mask = ~dormant_mask
+        
+        priority_mask = active_mask & (cust["avg_balance"] > 100000)
+        regular_mask = active_mask & (cust["avg_balance"] <= 100000)
+        
         segments[dormant_mask] = "Dormant"
-        rules_applied["Dormant"] = f"total_transactions <= {p25_txn:.0f} (25th percentile) OR recency_days >= {p75_rec:.0f} (75th percentile)"
-
-    # Regular — everyone else
-    if any(kw in rules_lower for kw in ["regular", "normal", "standard"]):
-        regular_mask = (segments == "Other")
+        segments[priority_mask] = "Priority"
         segments[regular_mask] = "Regular"
-        rules_applied["Regular"] = "All customers not classified as Priority or Dormant"
-    else:
-        # Default: rename "Other" to "Regular"
-        segments[segments == "Other"] = "Regular"
-        rules_applied["Regular"] = "All customers not classified in other segments"
+        
+        rules_applied["Dormant"] = "recency_days > 90"
+        rules_applied["Priority"] = "recency_days <= 90 AND avg_balance > 100000"
+        rules_applied["Regular"] = "recency_days <= 90 AND avg_balance <= 100000"
 
     cust["segment"] = segments
 
